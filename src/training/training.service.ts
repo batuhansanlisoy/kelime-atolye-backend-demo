@@ -81,7 +81,7 @@ export class TrainingService {
       const groupedWords = await this.wordService.list({
         minFrequency: range.min,
         maxFrequency: range.max,
-        limit: 3,
+        limit: 10,
       });
 
       words = words.concat(groupedWords);
