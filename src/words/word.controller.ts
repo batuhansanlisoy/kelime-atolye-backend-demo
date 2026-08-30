@@ -1,13 +1,11 @@
-import { Controller, Get, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
 import { WordService } from './word.service';
-import { AuthGuard } from '@nestjs/passport';
 
 @Controller('word')
 export class WordController {
   constructor(private readonly service: WordService) {}
 
   @Get('list')
-  @UseGuards(AuthGuard('jwt'))
   async list(
     @Query('limit') limit?: string,
     @Query('page') page?: string,
