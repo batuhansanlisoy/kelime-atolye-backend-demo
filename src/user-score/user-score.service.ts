@@ -50,21 +50,13 @@ export class UserScoreService {
 
       totalWeightedFrequency +=
         wordFrequency! * (successRate * 0.5 + successRate);
-
-      console.log('totalWeightedFrequency', totalWeightedFrequency);
-      console.log('successRate', successRate);
     });
-
-    console.log('totalWeightedFrequency', totalWeightedFrequency);
 
     const currentPerformance = totalWeightedFrequency / totalAttempt;
 
     const existingScore = await this.repository.findOne({
       where: { user: { id: userId } },
     });
-
-    console.log('existingScore', existingScore);
-    console.log('currentPerformance', currentPerformance);
 
     let finalPerformance = currentPerformance;
 
@@ -73,8 +65,26 @@ export class UserScoreService {
       finalPerformance =
         existingScore.currentPerform * 0.95 + currentPerformance * 0.05;
     }
-    console.log('finalPerformance', finalPerformance);
+
     return finalPerformance > -3 ? -3 : finalPerformance;
+  }
+
+  initialScoreCalculate(userId: number, items: UserWord[]): number {
+    const totalAttempt: number = items.length;
+    let totalWeightedFrequency: number = 0;
+
+    items.forEach((item) => {
+      const successRate =
+        item.correctCount / (item.correctCount + item.wrongCount);
+
+      const wordFrequency = item.word?.frequency;
+
+      totalWeightedFrequency += wordFrequency! * successRate;
+    });
+
+    const performance = totalWeightedFrequency / totalAttempt;
+
+    return performance > -3 ? -3 : performance;
   }
 
   // async scoreCalculate(userId: number, items: UserWord[]): Promise<number> {

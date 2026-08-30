@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { UserWordService } from './user-words.service';
 import { GetUser } from 'src/auth/decarators/get-user.decarator';
@@ -18,6 +18,7 @@ export class UserWordsController {
   async save(
     @GetUser() user: { sub: number; email: string },
     @Body() dto: CreateUserWordDto[],
+    @Query('initial') initial?: string,
   ) {
     const resp = await this.userWordService.save(user.sub, dto);
 
@@ -29,10 +30,14 @@ export class UserWordsController {
       wordIds,
     );
 
-    const score = await this.userScoreService.scoreCalculate(
-      user.sub,
-      userWords,
-    );
+    const isInitial = initial === 'true' || initial === '1';
+    let score: number;
+
+    if (isInitial) {
+      score = this.userScoreService.initialScoreCalculate(user.sub, userWords);
+    } else {
+      score = await this.userScoreService.scoreCalculate(user.sub, userWords);
+    }
 
     const payload: SaveUserScoreDto = {
       currentPerform: score,
