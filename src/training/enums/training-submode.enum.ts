@@ -1,7 +1,7 @@
 export enum TraininSubMode {
   INITIAL = 'initial',
   REINFORCE = 'reinforce',
-  MISTAKE = 'mistake',
+  MISTAKE = 'mistakes',
   EXPLORE = 'explore',
   STANDARD = 'standard',
 }

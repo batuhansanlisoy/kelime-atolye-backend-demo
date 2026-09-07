@@ -23,7 +23,7 @@ export class UserWordService {
       .createQueryBuilder('uw')
       .select('uw.word_id', 'wordId')
       .where('uw.user.id = :userId', { userId })
-      .orderBy('RAND()');
+      .orderBy('uw.last_seen', 'ASC');
 
     if (limit) {
       qb.limit(limit);
@@ -44,7 +44,7 @@ export class UserWordService {
         '(uw.wrong_count * 1.0) / (uw.correct_count + uw.wrong_count) > 0.5',
       )
       .andWhere('uw.wrong_count >= 2')
-      .orderBy('RAND()');
+      .orderBy('uw.last_seen', 'ASC');
 
     if (limit) {
       qb.limit(limit);
@@ -118,6 +118,7 @@ export class UserWordService {
     // ezberlenenler
     const memorizedWordCount = await queryBuilder
       .clone()
+      .andWhere('(uw.correct_count + uw.wrong_count) > 0')
       .andWhere(
         '(uw.correct_count / (uw.correct_count + uw.wrong_count)) >= :rate',
         { rate: 0.7 },
@@ -128,8 +129,9 @@ export class UserWordService {
     // sürekli hata yapılanlar
     const mistakedWordCount = await queryBuilder
       .clone()
+      .andWhere('(uw.correct_count + uw.wrong_count) > 0')
       .andWhere(
-        '(uw.correct_count / (uw.correct_count + uw.wrong_count)) <= :rate',
+        '(uw.wrong_count / (uw.correct_count + uw.wrong_count)) > :rate',
         { rate: 0.5 },
       )
       .andWhere('uw.wrong_count >= 2')

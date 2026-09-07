@@ -8,10 +8,12 @@ import {
   JoinColumn,
   UpdateDateColumn,
   Unique,
+  Index,
 } from 'typeorm';
 
 @Entity('user_words')
 @Unique(['user', 'word'])
+@Index(['user', 'lastSeen'])
 export class UserWord {
   @PrimaryGeneratedColumn()
   id!: number;
@@ -30,6 +32,6 @@ export class UserWord {
   @Column({ name: 'wrong_count', default: 0 })
   wrongCount!: number;
 
-  @UpdateDateColumn({ name: 'updated_at' })
-  updatedAt!: Date;
+  @UpdateDateColumn({ name: 'last_seen' })
+  lastSeen!: Date;
 }

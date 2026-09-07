@@ -37,8 +37,7 @@ export class TrainingService {
       [TraininSubMode.INITIAL]: () => this.initialWords(),
       [TraininSubMode.REINFORCE]: () => this.reinforcedWords(userId, limit),
       [TraininSubMode.MISTAKE]: () => this.mistakeWords(userId, limit),
-      [TraininSubMode.EXPLORE]: () =>
-        this.exploreWords(userId, userScore!, limit),
+      [TraininSubMode.EXPLORE]: () => this.exploreWords(userId, limit),
       [TraininSubMode.STANDARD]: () => this.standartWords(limit, userScore!),
     };
 
@@ -54,6 +53,8 @@ export class TrainingService {
 
       words = await selectedStrategy();
     }
+
+    if (!words || words.length === 0) return [];
 
     const wordsWithOptions = await Promise.all(
       words.map(async (word) => {
@@ -134,11 +135,7 @@ export class TrainingService {
    * @param userId kullanıcı id'si
    * @returns word[]
    */
-  private async exploreWords(
-    userId: number,
-    userScore: UserScore,
-    limit: number,
-  ): Promise<Word[]> {
+  private async exploreWords(userId: number, limit: number): Promise<Word[]> {
     const userWordIds = await this.userWordService.getInteractedWordIds(userId);
 
     // keşfet mantıgı scoredan bağımsız mı yoksa bağımlı mı olacak daha sonra karar ver.
@@ -164,6 +161,8 @@ export class TrainingService {
       userId,
       limit,
     );
+
+    if (!userWordMistakedIds || userWordMistakedIds.length === 0) return [];
 
     return await this.wordService.list({ onlyIds: userWordMistakedIds });
   }
