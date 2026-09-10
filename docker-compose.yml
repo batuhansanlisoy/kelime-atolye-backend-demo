@@ -13,8 +13,7 @@ services:
     command: node dist/main
     restart: always
     depends_on:
-      kelime_atolye_db_prod:
-        condition: service_healthy
+      - kelime_atolye_db_prod
     networks:
       - kelime-atolye-net
   
