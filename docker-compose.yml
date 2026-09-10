@@ -1,0 +1,44 @@
+name: kelime-atolye-prod
+
+services:
+  app:
+    container_name: kelime-atolye-app-prod
+    ports:
+    - "3009:3009"
+    build:
+      context: .
+      target: production
+    env_file:
+      - .env
+    command: node dist/main
+    restart: always
+    depends_on:
+      kelime_atolye_db_prod:
+        condition: service_healthy
+    networks:
+      - kelime-atolye-net
+  
+  kelime_atolye_db_prod:
+    container_name: kelime-atolye-db-prod
+    image: mariadb:latest
+    restart: always
+    ports:
+      - "3323:3306"
+    env_file:
+      - .env
+    environment:
+      - MARIADB_ROOT_PASSWORD=${DB_PASSWORD}
+      - MARIADB_DATABASE=${DB_NAME}
+      - MARIADB_USER=${DB_USER}
+      - MARIADB_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - mariadb_data_prod:/var/lib/mysql
+    networks:
+      - kelime-atolye-net
+
+volumes:
+  mariadb_data_prod:
+
+networks:
+  kelime-atolye-net:
+    driver: bridge
